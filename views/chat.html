@@ -8,71 +8,50 @@
 </head>
 <body>
 <div id="main">
-    <div id="chat-container">
-        <div class="chat-row">
-            <div class="info-cell">
-                <img class="avatar" src="/images/avatar.png"/>
-                <span class="nickname">Henry</span>
-                <span class="time">6 minutes ago</span>
-            </div>
-            <p class="message">
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-            </p>
-        </div>
-        <div class="chat-row">
-            <div class="info-cell">
-                <img class="avatar" src="/images/avatar.png"/>
-                <span class="nickname">Henry</span>
-                <span class="time">6 minutes ago</span>
-            </div>
-            <p class="message">
-                Very very long.Very very long.Very very long.Very very long.Very very long.Very very long.Very very
-                long.Very very long.
-            </p>
-        </div>
-        <div class="chat-row host">
-            <div class="info-cell">
-                <img class="avatar" src="/images/avatar.png"/>
-                <span class="nickname">Henry</span>
-                <span class="time">6 minutes ago</span>
-            </div>
-            <p class="message">
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-                Hello world<br>
-            </p>
-        </div>
+    <div id="chat-list-container">
+        <ul id="chat-list"></ul>
+        <script type="text/html" id="chat-item">
+            <li class="chat-row {{if IsHost}}host{{/if}}">
+                <div class="info-cell">
+                    <img class="avatar" src="/images/avatar.png"/>
+                    <span class="nickname" title="{{User.Nickname}}">{{User.Nickname}}</span>
+                    <span class="time">a minutes ago</span>
+                </div>
+                <p class="message">
+                    {{#Message | formatHtml }}
+                </p>
+            </li>
+        </script>
     </div>
+    <div id="user-list-container">
+        <ul id="user-list"></ul>
+        <script type="text/html" id="user-item">
+            <li class="user-row">
+                <img class="avatar" src="/images/avatar.png"/>
+                <span class="nickname" title="{{Nickname}}">{{Nickname}}</span>
+            </li>
+        </script>
+        <script type="text/html" id="user-items">
+            {{each list as item index}}
+            <li class="user-row {{if item.IsHost}}host{{/if}}">
+                <img class="avatar" src="/images/avatar.png"/>
+                <span class="nickname" title="{{item.Nickname}}">{{item.Nickname}}</span>
+            </li>
+            {{/each}}
+        </script>
+    </div>
+</div>
+
+<div id="chat-box-container">
+    <div id="chat-box">
+        <textarea id="chat-message"></textarea>
+        <span id="btn-send">Send</span>
+    </div>
+    <input type="hidden" id="hfldUId"/>
 </div>
 <script type="text/javascript" src="/lib/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="/lib/artTemplate/template.js"></script>
+<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script type="text/javascript" src="/javascripts/chat.js"></script>
 </body>
 </html>

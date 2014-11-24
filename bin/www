@@ -1,9 +1,65 @@
 #!/usr/bin/env node
-var debug = require('debug')('ChatRoom');
-var app = require('../app');
+var debug = require('debug')('ChatRoom'),
+    app = require('../app'),
+    server = require('http').Server(app),
+    io = require('socket.io')(server);
 
 app.set('port', process.env.PORT || 18080);
 
-var server = app.listen(app.get('port'), function() {
-  debug('Express server listening on port ' + server.address().port);
+// web
+server.listen(app.get('port'), function () {
+    console.log('Express server Listening on port ' + server.address().port);
 });
+
+// chat
+var users = [], // 储存所有用户信息
+    index = 1;
+
+io.on('connection', function (socket) {
+    var user = {
+        UId: socket.id,
+        Nickname: "Henry" + (index++)
+    };
+    console.log(user.Nickname + ' connected');
+
+    socket.on('message', function (message) {
+        var info = {
+            User: user,
+            Message: message
+        };
+        io.emit('message', info);
+    });
+
+    socket.on('disconnect', function () {
+        console.log(user.Nickname + ' disconnected');
+
+        users = users.remove(function (item) {
+            return item.UId == socket.id;
+        });
+
+        socket.broadcast.emit('user list', users);
+    });
+
+    broadcastNewUser(user);
+
+    function broadcastNewUser() {
+        users.push(user);
+
+        socket.emit('user info', user);
+        socket.emit('user list', users);
+        socket.broadcast.emit('new user', user);
+    }
+});
+
+// 根据条件移除指定的元素
+Array.prototype.remove = function (cond) {
+    var len = this.length;
+
+    for (var i = len - 1; i >= 0; i--) {
+        if (cond(this[i])) {
+            users.splice(i, 1);
+        }
+    }
+
+    return this;
+};
