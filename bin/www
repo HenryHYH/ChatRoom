@@ -12,43 +12,41 @@ server.listen(app.get('port'), function () {
 });
 
 // chat
-var users = [], // 储存所有用户信息
-    index = 1;
+var users = []; // 储存所有用户信息
 
 io.on('connection', function (socket) {
     var user = {
-        UId: socket.id,
-        Nickname: "Henry" + (index++)
+        UId: socket.id
     };
-    console.log(user.Nickname + ' connected');
 
-    socket.on('message', function (message) {
-        var info = {
-            User: user,
-            Message: message
-        };
-        io.emit('message', info);
-    });
-
-    socket.on('disconnect', function () {
-        console.log(user.Nickname + ' disconnected');
-
-        users = users.remove(function (item) {
-            return item.UId == socket.id;
-        });
-
-        socket.broadcast.emit('user list', users);
-    });
-
-    broadcastNewUser(user);
-
-    function broadcastNewUser() {
+    socket.on('start chat', function (nickname) {
+        user.Nickname = nickname;
         users.push(user);
 
         socket.emit('user info', user);
         socket.emit('user list', users);
         socket.broadcast.emit('new user', user);
-    }
+        socket.broadcast.emit('system message', user.Nickname + ' is on-line');
+    });
+
+    socket.on('message', function (message) {
+        if (user.Nickname) {
+            var info = {
+                User: user,
+                Message: message
+            };
+            io.emit('message', info);
+        }
+    });
+
+    socket.on('disconnect', function () {
+        users = users.remove(function (item) {
+            return item.UId == socket.id;
+        });
+
+        socket.broadcast.emit('system message', user.Nickname + ' is off-line');
+        socket.broadcast.emit('user list', users);
+    });
 });
 
 // 根据条件移除指定的元素

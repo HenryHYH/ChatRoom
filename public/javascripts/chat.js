@@ -1,5 +1,10 @@
 var socket = io();
 
+socket.on('system message', function (msg) {
+    $("#chat-list").append(template('system-message-item', {Message: msg}));
+    ScrollChatListToBottom();
+});
+
 socket.on('message', function (info) {
     info.IsHost = (info.User.UId == $("#hfldUId").val());
     $("#chat-list").append(template('chat-item', info));
@@ -19,6 +24,7 @@ socket.on('new user', function (user) {
 
 socket.on('user info', function (user) {
     $("#hfldUId").val(user.UId);
+    $("#pop-box-container").hide();
 });
 
 socket.on('user list', function (list) {
@@ -38,11 +44,24 @@ function Send(msg) {
     socket.emit('message', msg);
 }
 
+// 开始聊天
+function StartChat(nickname) {
+    socket.emit('start chat', nickname);
+}
+
 $(function () {
     $("#chat-box").delegate("#btn-send", "click", function () {
         var txt = $("#chat-message");
         Send(txt.val());
         txt.val('').focus();
+
+        return false;
+    });
+
+    $("#pop-box").delegate("#btn-chat", "click", function () {
+        var txt = $("#user-name");
+        StartChat(txt.val());
+        txt.val('');
 
         return false;
     });

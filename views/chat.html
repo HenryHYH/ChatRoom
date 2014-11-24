@@ -22,6 +22,11 @@
                 </p>
             </li>
         </script>
+        <script type="text/html" id="system-message-item">
+            <li class="system-message-row">
+                <span class="system-message">{{Message}}</span>
+            </li>
+        </script>
     </div>
     <div id="user-list-container">
         <ul id="user-list"></ul>
@@ -49,6 +54,21 @@
     </div>
     <input type="hidden" id="hfldUId"/>
 </div>
+
+<div id="pop-box-container">
+    <div id="pop-mask"></div>
+    <div id="pop-box">
+        <img class="avatar" src="/images/avatar.png"/>
+
+        <div id="pop-box-form">
+            <span class="title">Who're you?</span>
+            <br/><br/>
+            <input type="text" id="user-name" placeholder="Please enter your name"/>
+            <span typeof="text" id="btn-chat">Chat</span>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript" src="/lib/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="/lib/artTemplate/template.js"></script>
 <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
