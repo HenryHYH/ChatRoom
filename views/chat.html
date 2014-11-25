@@ -15,7 +15,7 @@
                 <div class="info-cell">
                     <img class="avatar" src="/images/avatar.png"/>
                     <span class="nickname" title="{{User.Nickname}}">{{User.Nickname}}</span>
-                    <span class="time">a minutes ago</span>
+                    <span class="time">{{Time | formatTime}}</span>
                 </div>
                 <p class="message">
                     {{#Message | formatHtml }}
@@ -29,6 +29,7 @@
         </script>
     </div>
     <div id="user-list-container">
+        <p id="cur-room"></p>
         <ul id="user-list"></ul>
         <script type="text/html" id="user-item">
             <li class="user-row">
@@ -49,7 +50,7 @@
 
 <div id="chat-box-container">
     <div id="chat-box">
-        <textarea id="chat-message"></textarea>
+        <textarea id="chat-message" placeholder="Please enter message"></textarea>
         <span id="btn-send">Send</span>
     </div>
     <input type="hidden" id="hfldUId"/>
@@ -64,10 +65,14 @@
             <span class="title">Who're you?</span>
             <br/><br/>
             <input type="text" id="user-name" placeholder="Please enter your name"/>
+            <br/>
+            <input type="text" id="room-name" placeholder="Please enter a room name"/>
             <span typeof="text" id="btn-chat">Chat</span>
         </div>
     </div>
 </div>
+
+<div id="tip"></div>
 
 <script type="text/javascript" src="/lib/jquery-2.1.1.min.js"></script>
 <script type="text/javascript" src="/lib/artTemplate/template.js"></script>

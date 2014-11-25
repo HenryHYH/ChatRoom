@@ -15,38 +15,57 @@ server.listen(app.get('port'), function () {
 var users = []; // 储存所有用户信息
 
 io.on('connection', function (socket) {
-    var user = {
-        UId: socket.id
-    };
+    var user = null;
 
-    socket.on('start chat', function (nickname) {
-        user.Nickname = nickname;
+    socket.on('start chat', function (info) {
+        user = {
+            UId: socket.id,
+            Nickname: info.Nickname,
+            Room: info.Room
+        }
         users.push(user);
 
+        socket.join(info.Room);
+
         socket.emit('user info', user);
-        socket.emit('user list', users);
-        socket.broadcast.emit('new user', user);
-        socket.broadcast.emit('system message', user.Nickname + ' is on-line');
+        socket.emit('user list', users.filter(function (item) {
+            return item.Room == info.Room;
+        }));
+        socket.broadcast.to(info.Room).emit('new user', user);
+        socket.broadcast.to(info.Room).emit('system message', user.Nickname + ' is on-line (' + getTime() + ')');
     });
 
     socket.on('message', function (message) {
-        if (user.Nickname) {
+        if (user) {
             var info = {
                 User: user,
-                Message: message
+                Message: message,
+                Time: getTime()
             };
-            io.emit('message', info);
+            io.in(user.Room).emit('message', info);
         }
     });
 
     socket.on('disconnect', function () {
-        users = users.remove(function (item) {
-            return item.UId == socket.id;
-        });
+        if (user) {
+            users = users.remove(function (item) {
+                return item.UId == socket.id;
+            });
 
-        socket.broadcast.emit('system message', user.Nickname + ' is off-line');
-        socket.broadcast.emit('user list', users);
+            var room = user.Room;
+            socket.leave(room);
+
+            socket.broadcast.to(room).emit('system message', user.Nickname + ' is off-line (' + getTime() + ')');
+            socket.broadcast.to(room).emit('user list', users.filter(function (item) {
+                return item.Room == room;
+            }));
+        }
     });
+
+    var getTime = function () {
+        var date = new Date();
+        return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+    };
 });
 
 // 根据条件移除指定的元素

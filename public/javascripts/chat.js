@@ -24,6 +24,7 @@ socket.on('new user', function (user) {
 
 socket.on('user info', function (user) {
     $("#hfldUId").val(user.UId);
+    $("#cur-room").text(user.Room);
     $("#pop-box-container").hide();
 });
 
@@ -45,30 +46,84 @@ function Send(msg) {
 }
 
 // 开始聊天
-function StartChat(nickname) {
-    socket.emit('start chat', nickname);
+function StartChat(info) {
+    socket.emit('start chat', {
+        Nickname: info.Nickname,
+        Room: info.Room
+    });
+}
+
+function Tip(msg) {
+    $("#tip").text(msg).fadeIn('slow', 'linear').delay(1500).fadeOut('slow', 'linear');
 }
 
 $(function () {
     $("#chat-box").delegate("#btn-send", "click", function () {
-        var txt = $("#chat-message");
-        Send(txt.val());
+        var txt = $("#chat-message"),
+            msg = txt.val();
+
+        if (!msg) {
+            Tip('Please enter message');
+            txt.focus();
+            return false;
+        }
+
+        Send(msg);
         txt.val('').focus();
 
         return false;
+    }).delegate("#chat-message", "keyup", function (e) {
+        if (e.ctrlKey && (e.keyCode == 10 || e.keyCode == 13)) {
+            $("#btn-send").click();
+        }
     });
 
     $("#pop-box").delegate("#btn-chat", "click", function () {
-        var txt = $("#user-name");
-        StartChat(txt.val());
-        txt.val('');
+        var txtUserName = $("#user-name"),
+            txtRoom = $("#room-name"),
+            userName = txtUserName.val(),
+            room = txtRoom.val();
+
+        if (!userName) {
+            Tip('Please enter your name');
+            txtUserName.focus();
+            return false;
+        }
+        else if (!room) {
+            Tip('Please enter a room name');
+            txtRoom.focus();
+            return false;
+        }
+
+        StartChat({
+            Nickname: userName,
+            Room: room
+        });
+        txtUserName.val('');
+        txtRoom.val('');
+
+        $("#chat-message").focus();
 
         return false;
+    }).delegate("#user-name", "keyup", function (e) {
+        if (e.keyCode == 13) {
+            $("#room-name").focus();
+        }
+    }).delegate("#room-name", "keyup", function (e) {
+        if (e.keyCode == 13) {
+            $("#btn-chat").click();
+        }
     });
+
+    $("#user-name").focus();
 });
 
 template.helper('formatHtml', function (str) {
     str = str.replace(/\n/g, '<br />'); // 替换回车回<br />
 
+    return str;
+});
+
+template.helper('formatTime', function (str) {
     return str;
 });
